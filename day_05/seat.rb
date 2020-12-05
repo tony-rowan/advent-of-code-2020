@@ -1,5 +1,17 @@
+require_relative '../helpers/input'
+
 class Seat
   attr_reader :boarding_pass
+
+  def self.from_input
+    seats = []
+
+    process_input do |line|
+      seats << Seat.new(line)
+    end
+
+    seats
+  end
 
   def initialize(boarding_pass)
     @boarding_pass = boarding_pass
