@@ -2,7 +2,7 @@ require 'set'
 require_relative '../helpers/input'
 
 class Group
-  attr_reader :answers
+  attr_reader :group_input
 
   def self.from_input
     groups = []
@@ -24,6 +24,22 @@ class Group
   end
 
   def initialize(group_input)
-    @answers = Set.new(group_input.reduce(:+).chars)
+    @group_input = group_input
+  end
+
+  def anyone
+    unique_yes_answers
+  end
+
+  def everyone
+    combined_input = group_input.reduce(:+).chars
+    target_count = group_input.size
+    unique_yes_answers.select do |answer|
+      combined_input.count { |char| char == answer } == target_count
+    end
+  end
+
+  def unique_yes_answers
+    Set.new(group_input.reduce(:+).chars)
   end
 end
