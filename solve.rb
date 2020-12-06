@@ -1,3 +1,5 @@
+#!ruby
+
 require 'awesome_print'
 require 'optparse'
 
