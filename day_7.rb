@@ -19,17 +19,20 @@ module Day7
   end
 
   def self.solve_part_2
+    Rule.from_input.select { |rule| rule.container == 'shiny gold' }.first.required_bag_count - 1
   end
 
   class Rule
     def self.from_input
-      rules = []
+      return @rules if @rules
+
+      @rules = []
 
       process_input(7) do |line|
-        rules << extract(line)
+        @rules << extract(line)
       end
 
-      rules
+      @rules
     end
 
     def self.extract(line)
@@ -58,13 +61,22 @@ module Day7
       @container = container
       @contents = contents
     end
+
+    def required_bag_count
+      return 1 if contents.empty?
+
+      count = contents.map do |item|
+        item_rule = Rule.from_input.select { |rule| rule.container == item.colour }.first
+        item.amount * item_rule.required_bag_count
+      end.reduce(:+) + 1
+    end
   end
 
   class RuleItem
     attr_reader :amount, :colour
 
     def initialize(amount, colour)
-      @amount = amount
+      @amount = amount.to_i
       @colour = colour
     end
   end
