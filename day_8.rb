@@ -1,6 +1,21 @@
 module Day8
   def self.solve_part_1
-    step, acc = Program.from_input.run_until_loop
+    _, _, acc = Program.from_input.run_until_loop
+
+    acc
+  end
+
+  def self.solve_part_2
+    fix_attempt = 0
+    acc = nil
+
+    loop do
+      puts "Attempt fix: #{fix_attempt}"
+      program = Program.from_input
+      program.attempt_fix(fix_attempt += 1)
+      terminated, _, acc = program.run_until_loop
+      break if terminated
+    end
 
     acc
   end
@@ -9,7 +24,7 @@ module Day8
     def self.from_input
       instructions = []
       process_input(8) do |line|
-        instructions << Instruction.new(*(line.split(" ")))
+        instructions << Instruction.new(instructions.size, *(line.split(" ")))
       end
 
       Program.new(instructions)
@@ -27,6 +42,7 @@ module Day8
       step = 0
 
       loop do
+        return [true, step, acc] if step >= instructions.size
         break if visited_steps.include?(step)
 
         visited_steps << step
@@ -49,16 +65,27 @@ module Day8
         end
       end
 
-      [step, acc]
+      [false, step, acc]
+    end
+
+    def attempt_fix(step)
+      instructions[step].flip
     end
   end
 
   class Instruction
-    attr_reader :instruction, :argument
+    attr_reader :line, :instruction, :argument
 
-    def initialize(instruction, argument)
+    def initialize(line, instruction, argument)
+      @line = line
       @instruction = instruction
       @argument = argument
+    end
+
+    def flip
+      ins = instruction
+      @instruction = 'nop' if ins == 'jmp'
+      @instruction = 'jmp' if ins == 'nop'
     end
   end
 end
