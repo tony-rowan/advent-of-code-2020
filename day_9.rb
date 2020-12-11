@@ -3,6 +3,10 @@ module Day9
     Stream.from_input.weakspot
   end
 
+  def self.solve_part_2
+    Stream.from_input.weakness
+  end
+
   class Stream
     def self.from_input
       numbers = []
@@ -21,6 +25,10 @@ module Day9
 
     def weakspot
       WeakspotFinder.new(numbers).run
+    end
+
+    def weakness
+      Cracker.new(numbers, weakspot).run
     end
   end
 
@@ -47,6 +55,27 @@ module Day9
     def add_possible_number(number)
       possible_numbers << number
       possible_numbers.drop(1) if possible_numbers.size > 25
+    end
+  end
+
+  class Cracker
+    attr_reader :numbers, :weakspot
+
+    def initialize(numbers, weakspot)
+      @numbers = numbers
+      @weakspot = weakspot
+    end
+
+    def run
+      numbers.each_with_index do |n, i|
+        contiguous = [n]
+
+        numbers.drop(i + 1).each_with_index do |m, j|
+          contiguous << m
+          break if contiguous.sum > weakspot
+          return contiguous.min + contiguous.max if contiguous.sum == weakspot
+        end
+      end
     end
   end
 end
