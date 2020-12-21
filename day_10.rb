@@ -4,6 +4,11 @@ module Day10
     bag_of_adapters.one_volt_differences * bag_of_adapters.three_volt_differences
   end
 
+  def self.solve_part_2
+    bag_of_adapters = BagOfAdapters.from_input
+    bag_of_adapters.combinations
+  end
+
   class BagOfAdapters
     def self.from_input
       adapters = []
@@ -29,6 +34,14 @@ module Day10
 
     def chain_of_all_adapters
       @chain_of_all_adapters ||= AdapterChain.new(adapters).link_adapters
+    end
+
+    def combinations
+      CombinatationBuilder.new(adapters, max_adapter).combinations
+    end
+
+    def max_adapter
+      adapters.last
     end
   end
 
@@ -56,6 +69,33 @@ module Day10
       end
 
       nil
+    end
+  end
+
+  class CombinatationBuilder
+    attr_reader :initial_adapters, :target
+
+    def initialize(adapters, target)
+      @initial_adapters = adapters
+      @target = target
+      @memo = {}
+    end
+
+    def combinations
+      _build_combinations(0, initial_adapters)
+    end
+
+    def _build_combinations(rating, adapters)
+      return @memo[rating] if @memo[rating]
+
+      if rating == target
+        return @memo[rating] = 1
+      end
+
+      next_adapters = [1, 2, 3].map { |n| rating + n }.select { |link| adapters.include?(link) }
+      @memo[rating] = next_adapters.map do |adapter|
+        _build_combinations(adapter, adapters.reject { |a| a <= adapter })
+      end.compact.sum
     end
   end
 end
