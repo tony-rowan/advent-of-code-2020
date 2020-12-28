@@ -3,7 +3,7 @@
 require 'awesome_print'
 require 'optparse'
 
-(1..12).each { |n| require_relative "./day_#{n}" }
+(1..13).each { |n| require_relative "./day_#{n}" }
 
 def process_input(day)
   File.open("./puzzle_inputs/day_#{day}.txt").each_line(chomp: true) do |line|
