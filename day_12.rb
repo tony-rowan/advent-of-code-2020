@@ -1,5 +1,12 @@
 module Day12
   def self.solve_part_1
+    raise 'No longer implemented'
+    ship = Ship.new
+    ship.navigate(instructions)
+    ship.north.abs + ship.east.abs
+  end
+
+  def self.solve_part_2
     ship = Ship.new
     ship.navigate(instructions)
     ship.north.abs + ship.east.abs
@@ -12,52 +19,77 @@ module Day12
   end
 
   class Ship
-    attr_reader :north, :east, :bearing
+    attr_reader :north, :east, :waypoint
 
     def initialize
       @north = 0
       @east = 0
-      @bearing = 0
+      @waypoint = Waypoint.new
     end
 
     def navigate(instructions)
       instructions.each do |instruction|
-        @north += _north_delta(instruction)
-        @east += _east_delta(instruction)
-        @bearing += _bearing_delta(instruction)
-        @bearing %= 360
+        case instruction.command
+        when 'N'
+          waypoint.move_north(instruction.value)
+        when 'E'
+          waypoint.move_east(instruction.value)
+        when 'S'
+          waypoint.move_south(instruction.value)
+        when 'W'
+          waypoint.move_west(instruction.value)
+        when 'F'
+          instruction.value.times { _move }
+        when 'R'
+          waypoint.rotate_right(instruction.value)
+        when 'L'
+          waypoint.rotate_left(instruction.value)
+        end
       end
     end
 
-    def _north_delta(instruction)
-      return instruction.value if instruction.command == 'N'
-      return -instruction.value if instruction.command == 'S'
+    def _move
+      @north += waypoint.north
+      @east += waypoint.east
+    end
+  end
 
-      if instruction.command == 'F'
-        return instruction.value if bearing == 270
-        return -instruction.value if bearing == 90
-      end
+  class Waypoint
+    attr_reader :north, :east
 
-      0
+    def initialize(north: 1, east: 10)
+      @north = north
+      @east = east
     end
 
-    def _east_delta(instruction)
-      return instruction.value if instruction.command == 'E'
-      return -instruction.value if instruction.command == 'W'
-
-      if instruction.command == 'F'
-        return instruction.value if bearing == 0
-        return -instruction.value if bearing == 180
-      end
-
-      0
+    def move_north(value)
+      @north += value
     end
 
-    def _bearing_delta(instruction)
-      return instruction.value if instruction.command == 'R'
-      return -instruction.value if instruction.command == 'L'
+    def move_east(value)
+      @east += value
+    end
 
-      0
+    def move_south(value)
+      @north -= value
+    end
+
+    def move_west(value)
+      @east -= value
+    end
+
+    def rotate_right(value)
+      _rotate(value)
+    end
+
+    def rotate_left(value)
+      _rotate(-value % 360)
+    end
+
+    def _rotate(value)
+      (value / 90).times do
+        @east, @north = north, -east
+      end
     end
   end
 
