@@ -13,6 +13,12 @@ class Day14
     program.memory.values.map(&:to_i).sum
   end
 
+  def solve_part_2
+    program = DockingProgramVersion2.new(instructions)
+    program.execute
+    program.memory.values.map(&:to_i).sum
+  end
+
   class DockingProgram
     attr_reader :mask, :memory, :instructions
 
@@ -44,6 +50,59 @@ class Day14
         padded_binary_value[index] = mask_char
       end
       padded_binary_value.to_i(2)
+    end
+  end
+
+  class DockingProgramVersion2
+    attr_reader :mask, :memory, :instructions
+
+    def initialize(instructions)
+      @memory = {}
+      @mask = nil
+      @instructions = instructions
+    end
+
+    def execute
+      instructions.each do |instruction|
+        case instruction
+        in SetMaskInstruction[new_mask]
+          @mask = new_mask
+        in WriteMemoryInstruction[address, value]
+          _apply_mask(address).each do |address|
+            memory[address] = value
+          end
+        else
+          raise "Could not perform instruction: #{instruction.raw}"
+        end
+      end
+    end
+
+    def _apply_mask(address)
+      binary_address = address.to_i.to_s(2)
+      padded_binary_address = '0' * (36 - binary_address.size) + binary_address
+
+      addresses = [padded_binary_address]
+
+      36.times do |i|
+        addresses = addresses.flat_map do |a|
+          case mask[i]
+          when 'X'
+            a = a.dup
+            b = a.dup
+            a[i] = '1'
+            b[i] = '0'
+            [a, b]
+          when '1'
+            a = a.dup
+            a[i] = '1'
+            a
+          else
+            a
+          end
+        end
+      end
+
+      addresses
     end
   end
 
