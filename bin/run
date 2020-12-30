@@ -1,0 +1,58 @@
+#!/usr/bin/env ruby
+
+require 'awesome_print'
+require 'optparse'
+
+Dir[File.join(__dir__, '..', 'lib', '*.rb')].sort.each { |file| require file }
+
+class Options
+  attr_accessor :day, :part
+
+  def validate!
+    if day.nil?
+      p 'You must specify a day.'
+      p 'solve.rb --help'
+      exit(1)
+    end
+
+    if part.nil?
+      p 'You must specify a part.'
+      p 'solve.rb --help'
+      exit(1)
+    end
+  end
+end
+
+class Parser
+  def self.parse!
+    options = Options.new
+
+    opt_parser = OptionParser.new do |opts|
+      opts.banner = 'Usage: solve.rb [options]'
+
+      opts.on('-d', '--day [DAY]', 'Day to Solve') do |day|
+        options.day = day
+      end
+      opts.on('-p', '--part [PART]', 'Part to Solve') do |part|
+        options.part = part
+      end
+
+      opts.on('-h', '--help', 'Prints this help') do
+        puts opts
+        exit
+      end
+    end
+
+    opt_parser.parse!
+    options
+  end
+end
+
+options = Parser.parse!
+options.validate!
+
+input = File.readlines("./data/day_#{options.day}.txt", chomp: true)
+answer = Object.const_get("Day#{options.day}").new(input).send("solve_part_#{options.part}")
+
+puts "--- Day: #{options.day}, Part: #{options.part} ---"
+puts "Answer: #{answer}"
