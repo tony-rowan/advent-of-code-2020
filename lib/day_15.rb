@@ -11,6 +11,12 @@ class Day15
     game.last_number_said
   end
 
+  def solve_part_2
+    game = Game.new(starting_numbers, 30_000_000)
+    game.play
+    game.last_number_said
+  end
+
   class Game
     attr_reader :starting_numbers, :turns, :memory, :last_number_said
 
@@ -28,11 +34,25 @@ class Day15
         elsif memory[last_number_said].size == 1
           @last_number_said = 0
         else
-          a, b = memory[last_number_said].last(2)
+          a, b = memory[last_number_said]
           @last_number_said = b - a
         end
-        memory[last_number_said] = (memory[last_number_said] || []) + [i]
+
+        _remember(last_number_said, i)
       end
+    end
+
+    def _remember(n, turn)
+      memory[n] =
+        if memory[n]
+          if memory[n].size == 1
+            [memory[n][0], turn]
+          else
+            memory[n] = [memory[n][1], turn]
+          end
+        else
+          memory[n] = [turn]
+        end
     end
   end
 end
